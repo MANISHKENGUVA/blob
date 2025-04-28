@@ -7,6 +7,7 @@
 </template>
 
 <script>
+import Certificate from "./"
 export default {
   methods: {
     async createDummyPdf(isDownload) {
@@ -15,7 +16,7 @@ export default {
         const dummyText = "This is a dummy PDF generated without API.";
 
         // 2. Create a Blob with PDF MIME type
-        const pdfBlob = new Blob([dummyText], { type: "application/pdf" });
+        const pdfBlob = new Blob(, { type: "application/pdf" });
 
         // 3. Create a URL for the blob
         const blobURL = URL.createObjectURL(pdfBlob);
