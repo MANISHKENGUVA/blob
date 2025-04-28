@@ -1,33 +1,32 @@
 <template>
   <div>
-    <h1>Google Drive PDF Open/Download</h1>
-    <button @click="downloadPdfFromDrive(false)">Open PDF</button>
-    <button @click="downloadPdfFromDrive(true)">Download PDF</button>
+    <h1>Download Dummy PDF from Google Drive</h1>
+    <button @click="downloadFromDrive">Download PDF</button>
   </div>
 </template>
 
 <script>
 export default {
   methods: {
-    downloadPdfFromDrive(isDownload) {
-      const fileId = "13nrItpG_p_evAkfzUO2zd-FcViXprXx1"; // Your Google Drive file ID
+    downloadFromDrive() {
+      // Google Drive file ID from the URL you provided
+      const fileId = "13nrItpG_p_evAkfzUO2zd-FcViXprXx1";  // Your File ID
       const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
 
+      // Check if the browser is Safari
       const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
-      if (isDownload) {
-        if (isSafari) {
-          window.open(downloadUrl, "_blank"); // Safari opens, then user saves
-        } else {
-          const link = document.createElement('a');
-          link.href = downloadUrl;
-          link.download = "document.pdf"; // Download filename
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        }
+      // If it's Safari, open in a new tab
+      if (isSafari) {
+        window.open(downloadUrl, "_blank");
       } else {
-        window.open(downloadUrl, "_blank"); // Open in new tab
+        // If not Safari, use the standard download method
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download = "dummy.pdf"; // The name you want the file to have when downloaded
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       }
     }
   }
