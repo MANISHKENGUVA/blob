@@ -1,85 +1,56 @@
 <template>
-  <div class="container">
+  <div>
     <h1>Dummy PDF Generator</h1>
-
-    <!-- Basic Blob PDF -->
-    <button @click="createDummyPdf(false)">Open Dummy PDF (Basic)</button>
-    <button @click="createDummyPdf(true)">Download Dummy PDF (Basic)</button>
-
-    <hr />
-
-    <!-- jsPDF Generated PDF -->
-    <button @click="createDummyPdfUsingJsPDF(false)">
-      Open Dummy PDF (jsPDF)
-    </button>
-    <button @click="createDummyPdfUsingJsPDF(true)">
-      Download Dummy PDF (jsPDF)
-    </button>
+    <button @click="createDummyPdf(false)">Open Dummy PDF</button>
+    <button @click="createDummyPdf(true)">Download Dummy PDF</button>
   </div>
 </template>
 
 <script>
-import { jsPDF } from 'jspdf';
-
 export default {
-  name: 'DummyPdfGenerator',
   methods: {
-    // Basic method using Blob
-    createDummyPdf(isDownload) {
-      const dummyText = 'This is a dummy PDF generated without an API call.';
+    async createDummyPdf(isDownload) {
+      try {
+        // 1. Create dummy content
+        const dummyText = "This is a dummy PDF generated without API.";
 
-      const pdfBlob = new Blob([dummyText], { type: 'application/pdf' });
-      const blobURL = URL.createObjectURL(pdfBlob);
+        // 2. Create a Blob with PDF MIME type
+        const pdfBlob = new Blob([dummyText], { type: "application/pdf" });
 
-      if (isDownload) {
-        const link = document.createElement('a');
-        link.href = blobURL;
-        link.download = 'dummy-basic.pdf'; // File name for download
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        window.open(blobURL, '_blank');
+        // 3. Create a URL for the blob
+        const blobURL = URL.createObjectURL(pdfBlob);
+
+        // 4. Open or download the blob
+        if (isDownload) {
+          const link = document.createElement("a");
+          link.href = blobURL;
+          link.download = "dummy.pdf"; // file name
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } else {
+          window.open(blobURL, "_blank");
+        }
+      } catch (error) {
+        console.error("Error creating dummy PDF:", error);
       }
-    },
-
-    // Better method using jsPDF
-    createDummyPdfUsingJsPDF(isDownload) {
-      const doc = new jsPDF();
-      doc.text('This is a properly generated PDF using jsPDF!', 10, 10);
-
-      if (isDownload) {
-        doc.save('dummy-jsPDF.pdf');
-      } else {
-        const blob = doc.output('blob');
-        const blobURL = URL.createObjectURL(blob);
-        window.open(blobURL, '_blank');
-      }
-    },
-  },
+    }
+  }
 };
 </script>
 
 <style scoped>
-.container {
-  padding: 20px;
-}
-
 button {
   margin: 10px;
   padding: 10px 20px;
-  background-color: #4caf50;
+  background-color: #4CAF50;
   color: white;
   border: none;
-  border-radius: 8px;
   cursor: pointer;
+  font-size: 16px;
+  border-radius: 5px;
 }
-
 button:hover {
   background-color: #45a049;
-}
-
-h1 {
-  margin-bottom: 20px;
 }
 </style>
