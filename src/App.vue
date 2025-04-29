@@ -215,7 +215,6 @@ export default {
 </script> -->
 
 
-
 <template>
   <div>
     <button @click="downloadPdf('SALE_AGREEMENT', 'MEAN_STACK_LAB_MANUAL.pdf')">Download PDF</button>
@@ -236,15 +235,23 @@ export default {
         type = "loandocs";
       }
 
+      // Safeguard check for $route
+      const loanId = this.$route && this.$route.query ? this.$route.query.loanId : null;
+
+      if (!loanId) {
+        console.error('Loan ID is missing from the route query');
+        return; // Exit early if no loanId is found
+      }
+
       const params = {
-        loanId: doctype === "COC" ? this.invoiceId : this.$route.query.loanId,
+        loanId: doctype === "COC" ? this.invoiceId : loanId,
         type: type,
         imagedesc: doctype,
         name: name,
       };
 
       try {
-        // Fake API response simulation (base64 encoded PDF)
+        // Simulate a request to an API to get the base64-encoded PDF (use actual endpoint)
         const res = await this.simulateApiCall(params);
 
         // Get base64-encoded PDF data from the response
@@ -305,4 +312,5 @@ export default {
   }
 };
 </script>
+
 
