@@ -235,8 +235,8 @@ export default {
         type = "loandocs";
       }
 
-      // Generate a fake loanId
-      const loanId = this.generateFakeLoanId();  // You can call generateFakeLoanId() for simulation
+      // Generate fake loanId
+      const loanId = this.generateFakeLoanId();
 
       const params = {
         loanId: loanId,
@@ -246,71 +246,63 @@ export default {
       };
 
       try {
-        // Simulate a request to an API to get the base64-encoded PDF (use actual endpoint)
+        // Simulate fake API call
         const res = await this.simulateApiCall(params);
-
-        // Get base64-encoded PDF data from the response
         const base64Data = res.data;
 
         // Decode base64 to binary
         const binaryData = atob(base64Data);
         const arrayBuffer = new ArrayBuffer(binaryData.length);
-        const byteArray = new Uint8Array(arrayBuffer);
+        const byteArray = new Uint8Array(arrayBuffer.length);
         for (let i = 0; i < binaryData.length; i++) {
           byteArray[i] = binaryData.charCodeAt(i);
         }
 
-        // Create Blob from binary data
+        // Create Blob and download
         const blob = new Blob([byteArray], { type: 'application/pdf' });
         const url = window.URL.createObjectURL(blob);
 
-        // Detect Safari and handle file download accordingly
         const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-        
+
         if (isSafari) {
-          // Open in a new tab for Safari
           const newTab = window.open();
           if (newTab) {
             newTab.location.href = url;
           } else {
-            // Fallback if popup is blocked
             window.location.href = url;
           }
         } else {
-          // For other browsers (Chrome, Firefox, etc.)
           const a = document.createElement('a');
           a.href = url;
           a.download = name;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
-          setTimeout(() => URL.revokeObjectURL(url), 3000);  // Clean up URL object
+          setTimeout(() => URL.revokeObjectURL(url), 3000);
         }
       } catch (error) {
         console.error('Download failed', error);
       }
     },
 
-    // Function to generate fake loan ID
     generateFakeLoanId() {
-      return "LOAN_" + Math.floor(100000 + Math.random() * 900000);  // Generate fake loan ID like LOAN_123456
+      return "LOAN_" + Math.floor(100000 + Math.random() * 900000);
     },
 
-    // Fake API call simulation
     simulateApiCall(params) {
       return new Promise((resolve) => {
         setTimeout(() => {
-          // Simulate a fake base64-encoded PDF response (shortened for example purposes)
-          const fakeBase64Pdf = 'JVBERi0xLjQKJeLjz8MKNjEwM......';  // Replace with actual base64 string
+          // Small valid PDF in base64
+          const validBase64Pdf = 
+            'JVBERi0xLjUKJeLjz9MKMSAwIG9iago8PC9UeXBlIC9DYXRhbG9nPj4KZW5kb2JqCnhyZWYKMCAyCjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAxMCAwMDAwMCBuIAowMDAwMDAwMjAwIDAwMDAwIG4gCnRyYWlsZXIKPDwvUm9vdCAxIDAgUi9TaXplIDI+PgpzdGFydHhyZWYKMTU4CiUlRU9G';
 
-          resolve({
-            data: fakeBase64Pdf,
-          });
-        }, 1000);  // Simulate network delay
+          resolve({ data: validBase64Pdf });
+        }, 1000); // 1 sec fake delay
       });
     }
   }
-};
+}
+
 </script>
 
 
