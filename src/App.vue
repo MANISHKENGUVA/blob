@@ -289,7 +289,7 @@ async downloadPdf(doctype, name) {
 </script> -->
 
 
-<template>
+<!-- <template>
   <div>
     <button @click="downloadPdf('SALE_AGREEMENT', 'Agreement.pdf')">Download PDF</button>
   </div>
@@ -370,6 +370,126 @@ export default {
     }
   }
 };
+</script> -->
+
+
+<template>
+  <div class="download-container">
+    <button @click="DownloadLoanDocuments('SALE_AGREEMENT', 'SaleAgreement.pdf')">
+      Download Sale Agreement
+    </button>
+    <button @click="DownloadLoanDocuments('COC', 'CompletionCertificate.pdf')">
+      Download COC
+    </button>
+    <button @click="DownloadLoanDocuments('OTHER', 'LoanDocument.pdf')">
+      Download Loan Docs
+    </button>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "DownloadPdf",
+  data() {
+    return {
+      invoiceId: "INV-123456", // Mocked for demo
+    };
+  },
+  methods: {
+    async DownloadLoanDocuments(doctype, name) {
+      let type;
+      if (doctype === "SALE_AGREEMENT") {
+        type = "saleagreement";
+      } else if (doctype === "COC") {
+        type = "projectcompletion";
+      } else {
+        type = "loandocs";
+      }
+
+      const loanId =
+        doctype === "COC"
+          ? this.invoiceId
+          : this.$route?.query?.loanId || "LOAN-" + Math.random().toString(36).substr(2, 8).toUpperCase();
+
+      const params = {
+        loanId: loanId,
+        type: type,
+        imagedesc: doctype,
+        name: name,
+      };
+
+      try {
+        // Simulate an API POST request - replace with actual this.$http.post or Axios call
+        const res = await fetch("/api/downloadDocuments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(params),
+        });
+
+        const { base64Data } = await res.json();
+
+        if (typeof base64Data !== "string" || !base64Data.match(/^[A-Za-z0-9+/=\s]+$/)) {
+          throw new Error("Invalid base64 data received");
+        }
+
+        const binaryData = atob(base64Data);
+        const arrayBuffer = new ArrayBuffer(binaryData.length);
+        const byteArray = new Uint8Array(arrayBuffer);
+        for (let i = 0; i < binaryData.length; i++) {
+          byteArray[i] = binaryData.charCodeAt(i);
+        }
+
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+        const url = window.URL.createObjectURL(blob);
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+        if (isSafari) {
+          const newTab = window.open("about:blank");
+          if (newTab) {
+            newTab.location.href = url;
+            setTimeout(() => URL.revokeObjectURL(url), 10000);
+          } else {
+            this.$notify?.({
+              type: "error",
+              message: "Popup blocked. Please allow popups or download manually.",
+            }) || alert("Popup blocked. Please allow popups.");
+            window.location.href = url;
+          }
+        } else {
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = name;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }
+      } catch (error) {
+        console.error("Download failed", error);
+        this.$notify?.({
+          type: "error",
+          message: "Failed to download document. Please try again.",
+        }) || alert("Failed to download document. Please try again.");
+      }
+    },
+  },
+};
 </script>
 
-
+<style scoped>
+.download-container {
+  padding: 20px;
+}
+button {
+  margin: 10px;
+  padding: 10px 20px;
+  background-color: #0099ff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #007acc;
+}
+</style>
