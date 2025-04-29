@@ -1,48 +1,65 @@
 <template>
   <div>
-    <h1>Download Dummy PDF from Google Drive</h1>
-    <button @click="downloadFromDrive">Download PDF</button>
+    <h1>File Operations</h1>
+    <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none" />
+    <button @click="triggerFileInput">Upload File</button>
+    <button @click="downloadFile">Download File</button>
+    <p v-if="fileMetadata">
+      <strong>File Name:</strong> {{ fileMetadata.name }} <br />
+      <strong>File Type:</strong> {{ fileMetadata.type }} <br />
+      <strong>File Size:</strong> {{ fileMetadata.size }} bytes <br />
+    </p>
   </div>
 </template>
 
 <script>
 export default {
+  data() {
+    return {
+      fileMetadata: null,
+    };
+  },
   methods: {
-    downloadFromDrive() {
-      // Google Drive file ID from the URL you provided
-      const fileId = "13nrItpG_p_evAkfzUO2zd-FcViXprXx1";  // Your File ID
-      const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-
-      // Check if the browser is Safari
-      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-
-      // If it's Safari, open in a new tab
-      if (isSafari) {
-        window.open(downloadUrl, "_blank");
-      } else {
-        // If not Safari, use the standard download method
-        const link = document.createElement("a");
-        link.href = downloadUrl;
-        link.download = "dummy.pdf"; // The name you want the file to have when downloaded
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    // Triggering hidden file input
+    triggerFileInput() {
+      this.$refs.fileInput.click();
+    },
+    // Handling file upload
+    handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.fileMetadata = {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          lastModified: new Date(file.lastModified),
+        };
       }
-    }
-  }
+    },
+    // Downloading file
+    downloadFile() {
+      const content = "Sample text content for download";
+      const mime = "text/plain";
+      const blob = new Blob([content], { type: mime });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "sample.txt";
+      link.click();
+      URL.revokeObjectURL(link.href);
+    },
+  },
 };
 </script>
 
 <style scoped>
 button {
-  margin: 10px;
-  padding: 10px 20px;
-  background-color: #4CAF50;
+  margin: 5px;
+  padding: 10px;
+  background-color: #4caf50;
   color: white;
   border: none;
-  cursor: pointer;
-  font-size: 16px;
   border-radius: 5px;
+  cursor: pointer;
 }
 button:hover {
   background-color: #45a049;
