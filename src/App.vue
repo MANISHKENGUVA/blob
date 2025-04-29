@@ -214,7 +214,7 @@ export default {
 };
 </script> -->
 
-
+<!-- 
 <template>
   <div>
     <button @click="downloadPdf('SALE_AGREEMENT', 'MEAN_STACK_LAB_MANUAL.pdf')">Download PDF</button>
@@ -222,8 +222,82 @@ export default {
 </template>
 
 <script>
+async downloadPdf(doctype, name) {
+  let type;
+  if (doctype === "SALE_AGREEMENT") {
+    type = "saleagreement";
+  } else if (doctype === "COC") {
+    type = "projectcompletion";
+  } else {
+    type = "loandocs";
+  }
+
+  const loanId = this.generateFakeLoanId();
+
+  const params = {
+    loanId: loanId,
+    type: type,
+    imagedesc: doctype,
+    name: name,
+  };
+
+  try {
+    // Detect Safari
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    let newTab;
+
+    if (isSafari) {
+      // Immediately open blank tab
+      newTab = window.open('about:blank');
+    }
+
+    // Simulate API call
+    const res = await this.simulateApiCall(params);
+    const base64Data = res.data;
+
+    const binaryData = atob(base64Data);
+    const arrayBuffer = new ArrayBuffer(binaryData.length);
+    const byteArray = new Uint8Array(arrayBuffer.length);
+    for (let i = 0; i < binaryData.length; i++) {
+      byteArray[i] = binaryData.charCodeAt(i);
+    }
+
+    const blob = new Blob([byteArray], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+
+    if (isSafari) {
+      if (newTab) {
+        newTab.location.href = url;
+      } else {
+        window.location.href = url;
+      }
+    } else {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 3000);
+    }
+  } catch (error) {
+    console.error('Download failed', error);
+  }
+}
+
+
+</script> -->
+
+
+<template>
+  <div>
+    <button @click="downloadPdf('SALE_AGREEMENT', 'Agreement.pdf')">Download PDF</button>
+  </div>
+</template>
+
+<script>
 export default {
-  name: 'DownloadPdfButton',
+  name: "App",
   methods: {
     async downloadPdf(doctype, name) {
       let type;
@@ -235,7 +309,6 @@ export default {
         type = "loandocs";
       }
 
-      // Generate fake loanId
       const loanId = this.generateFakeLoanId();
 
       const params = {
@@ -246,33 +319,30 @@ export default {
       };
 
       try {
-        // Simulate fake API call
-        const res = await this.simulateApiCall(params);
-        const base64Data = res.data;
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        let newTab;
+        if (isSafari) newTab = window.open("about:blank");
 
-        // Decode base64 to binary
+        const res = await this.simulateApiCall(params); // simulate dummy base64
+        const base64Data = res.data;
         const binaryData = atob(base64Data);
         const arrayBuffer = new ArrayBuffer(binaryData.length);
-        const byteArray = new Uint8Array(arrayBuffer.length);
+        const byteArray = new Uint8Array(arrayBuffer);
         for (let i = 0; i < binaryData.length; i++) {
           byteArray[i] = binaryData.charCodeAt(i);
         }
 
-        // Create Blob and download
-        const blob = new Blob([byteArray], { type: 'application/pdf' });
+        const blob = new Blob([byteArray], { type: "application/pdf" });
         const url = window.URL.createObjectURL(blob);
 
-        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-
         if (isSafari) {
-          const newTab = window.open();
           if (newTab) {
             newTab.location.href = url;
           } else {
             window.location.href = url;
           }
         } else {
-          const a = document.createElement('a');
+          const a = document.createElement("a");
           a.href = url;
           a.download = name;
           document.body.appendChild(a);
@@ -281,28 +351,25 @@ export default {
           setTimeout(() => URL.revokeObjectURL(url), 3000);
         }
       } catch (error) {
-        console.error('Download failed', error);
+        console.error("Download failed", error);
       }
     },
 
     generateFakeLoanId() {
-      return "LOAN_" + Math.floor(100000 + Math.random() * 900000);
+      return "LOAN-" + Math.random().toString(36).substr(2, 9).toUpperCase();
     },
 
     simulateApiCall(params) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          // Small valid PDF in base64
-          const validBase64Pdf = 
-            'JVBERi0xLjUKJeLjz9MKMSAwIG9iago8PC9UeXBlIC9DYXRhbG9nPj4KZW5kb2JqCnhyZWYKMCAyCjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAxMCAwMDAwMCBuIAowMDAwMDAwMjAwIDAwMDAwIG4gCnRyYWlsZXIKPDwvUm9vdCAxIDAgUi9TaXplIDI+PgpzdGFydHhyZWYKMTU4CiUlRU9G';
+      // returns fake base64 PDF data (1-page PDF)
+      const dummyPdfBase64 =
+        "JVBERi0xLjQKJeLjz9MKNCAwIG9iago8PC9UeXBlIC9QYWdlL1BhcmVudCAxIDAgUi9SZXNvdXJjZXMgMiAwIFIvTWVkaWFCb3hbMCAwIDYxMiA3OTJdL0NvbnRlbnRzIDUgMCBSL0dyb3VwPDwvUy9UcmFuc3BhcmVuY3kvQ1MvRGV2aWNlUkdCPj4+PgplbmRvYmoKNSAwIG9iago8PC9MZW5ndGggNjI+PnN0cmVhbQpCBiAgICAgICAgVGhpcyBpcyBhIGZha2UgcGRmIHJlc3BvbnNlIGZyb20gVmVlLgplbmRzdHJlYW0KZW5kb2JqCjYgMCBvYmoKPDwvVHlwZS9DYXRhbG9nL1BhZ2VzIDMgMCBSPj4KZW5kb2JqCjcgMCBvYmoKPDwvQ3JlYXRpb25EYXRlKEQ6MjAyNTA0MjkxMjA1MjIrMDAnMDAnKS9Nb2REYXRlKEQ6MjAyNTA0MjkxMjA1MjIrMDAnMDAnKT4+CmVuZG9iago4IDAgb2JqCjw8L1R5cGUvWE9iamVjdD4+CmVuZG9iagp4cmVmCjAgOQowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMTAgMDAwMDAgbiAKMDAwMDAwMDAyNSAwMDAwMCBuIAowMDAwMDAwMDUwIDAwMDAwIG4gCjAwMDAwMDAxMjAgMDAwMDAgbiAKMDAwMDAwMDE1MCAwMDAwMCBuIAowMDAwMDAwMzAwIDAwMDAwIG4gCjAwMDAwMDAzNjAgMDAwMDAgbiAKMDAwMDAwMDQyMCAwMDAwMCBuIAp0cmFpbGVyCjw8L1Jvb3QgNiAwIFIvU2l6ZSA5Pj4Kc3RhcnR4cmVmCjQ0NQolJUVPRgo=";
 
-          resolve({ data: validBase64Pdf });
-        }, 1000); // 1 sec fake delay
-      });
+      return new Promise((resolve) =>
+        setTimeout(() => resolve({ data: dummyPdfBase64 }), 1000)
+      );
     }
   }
-}
-
+};
 </script>
 
 
