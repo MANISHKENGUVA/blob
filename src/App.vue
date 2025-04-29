@@ -151,7 +151,7 @@ div {
 </style> -->
 
 
-<template>
+<!-- <template>
   <div>
     <button @click="downloadPdf">Download MEAN Stack Lab Manual</button>
   </div>
@@ -174,6 +174,41 @@ export default {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+    }
+  }
+};
+</script> -->
+
+
+<template>
+  <div>
+    <button @click="downloadJson">Download JSON</button>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'DownloadJsonButton',
+  methods: {
+    downloadJson() {
+      const jsonObject = { name: "John", age: 30, car: null };
+
+      // Convert to JSON string with indentation
+      const jsonString = JSON.stringify(jsonObject, null, 2);
+
+      // Create a Blob
+      const blob = new Blob([jsonString], { type: "application/json" });
+
+      // Create a temporary download link
+      const link = document.createElement("a");
+      link.download = "file.json";
+      link.href = URL.createObjectURL(blob);
+
+      // Trigger the download
+      link.click();
+
+      // Optional: Revoke object URL to release memory
+      URL.revokeObjectURL(link.href);
     }
   }
 };
