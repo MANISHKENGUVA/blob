@@ -67,18 +67,17 @@ button:hover {
 </style> -->
 
 
-<template>
+<!-- <template>
   <div>
     <h1>File Operations</h1>
 
-    <!-- Hidden file input for upload -->
+
     <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none" />
 
-    <!-- Buttons for file operations -->
+
     <button @click="triggerFileInput">Upload File</button>
     <button @click="downloadFile">Download File</button>
 
-    <!-- File metadata display -->
     <div v-if="fileMetadata">
       <h3>Uploaded File Metadata</h3>
       <p><strong>Name:</strong> {{ fileMetadata.name }}</p>
@@ -131,7 +130,7 @@ export default {
 </script>
 
 <style scoped>
-/* Styling for the buttons */
+
 button {
   margin: 10px;
   padding: 10px 20px;
@@ -149,4 +148,33 @@ button:hover {
 div {
   margin-top: 20px;
 }
-</style>
+</style> -->
+
+
+<template>
+  <div>
+    <button @click="downloadPdf">Download MEAN Stack Lab Manual</button>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'DownloadPdfButton',
+  data() {
+    return {
+      pdfUrl: 'https://github.com/MANISHKENGUVA/MEANSTACKLAB/raw/main/MEANSTACK%20LAB%20MANUAL%202022-23%201%20(1).pdf',
+      pdfFileName: 'MEAN_STACK_LAB_MANUAL.pdf'
+    };
+  },
+  methods: {
+    downloadPdf() {
+      const link = document.createElement('a');
+      link.href = this.pdfUrl;
+      link.download = this.pdfFileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }
+};
+</script>
