@@ -180,7 +180,7 @@ export default {
 </script> -->
 
 
-<template>
+<!-- <template>
   <div>
     <button @click="downloadJson">Download JSON</button>
   </div>
@@ -212,4 +212,97 @@ export default {
     }
   }
 };
+</script> -->
+
+
+
+<template>
+  <div>
+    <button @click="downloadPdf('SALE_AGREEMENT', 'MEAN_STACK_LAB_MANUAL.pdf')">Download PDF</button>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'DownloadPdfButton',
+  methods: {
+    async downloadPdf(doctype, name) {
+      let type;
+      if (doctype === "SALE_AGREEMENT") {
+        type = "saleagreement";
+      } else if (doctype === "COC") {
+        type = "projectcompletion";
+      } else {
+        type = "loandocs";
+      }
+
+      const params = {
+        loanId: doctype === "COC" ? this.invoiceId : this.$route.query.loanId,
+        type: type,
+        imagedesc: doctype,
+        name: name,
+      };
+
+      try {
+        // Fake API response simulation (base64 encoded PDF)
+        const res = await this.simulateApiCall(params);
+
+        // Get base64-encoded PDF data from the response
+        const base64Data = res.data;
+
+        // Decode base64 to binary
+        const binaryData = atob(base64Data);
+        const arrayBuffer = new ArrayBuffer(binaryData.length);
+        const byteArray = new Uint8Array(arrayBuffer);
+        for (let i = 0; i < binaryData.length; i++) {
+          byteArray[i] = binaryData.charCodeAt(i);
+        }
+
+        // Create Blob from binary data
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+
+        // Detect Safari and handle file download accordingly
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        
+        if (isSafari) {
+          // Open in a new tab for Safari
+          const newTab = window.open();
+          if (newTab) {
+            newTab.location.href = url;
+          } else {
+            // Fallback if popup is blocked
+            window.location.href = url;
+          }
+        } else {
+          // For other browsers (Chrome, Firefox, etc.)
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = name;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 3000);  // Clean up URL object
+        }
+      } catch (error) {
+        console.error('Download failed', error);
+      }
+    },
+
+    // Fake API call simulation
+    simulateApiCall(params) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          // Simulate a fake base64-encoded PDF response (shortened for example purposes)
+          const fakeBase64Pdf = 'JVBERi0xLjQKJeLjz8MKNjEwM......';  // Replace with actual base64 string
+
+          resolve({
+            data: fakeBase64Pdf,
+          });
+        }, 1000);  // Simulate network delay
+      });
+    }
+  }
+};
 </script>
+
