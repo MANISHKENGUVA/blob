@@ -235,16 +235,11 @@ export default {
         type = "loandocs";
       }
 
-      // Safeguard check for $route
-      const loanId = this.$route && this.$route.query ? this.$route.query.loanId : null;
-
-      if (!loanId) {
-        console.error('Loan ID is missing from the route query');
-        return; // Exit early if no loanId is found
-      }
+      // Generate a fake loanId
+      const loanId = this.generateFakeLoanId();  // You can call generateFakeLoanId() for simulation
 
       const params = {
-        loanId: doctype === "COC" ? this.invoiceId : loanId,
+        loanId: loanId,
         type: type,
         imagedesc: doctype,
         name: name,
@@ -294,6 +289,11 @@ export default {
       } catch (error) {
         console.error('Download failed', error);
       }
+    },
+
+    // Function to generate fake loan ID
+    generateFakeLoanId() {
+      return "LOAN_" + Math.floor(100000 + Math.random() * 900000);  // Generate fake loan ID like LOAN_123456
     },
 
     // Fake API call simulation
